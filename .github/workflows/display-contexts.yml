@@ -3,6 +3,9 @@ jobs:
   display-contexts:
     runs-on: ubuntu-latest
     steps:
+      # Display every [GitHub Contexts](https://docs.github.com/en/actions/learn-github-actions/contexts).
+      # WARNING: this could lead to execution of malicious content. See
+      # [Understanding the risk of script injections](https://docs.github.com/en/actions/security-guides/security-hardening-for-github-actions#understanding-the-risk-of-script-injections).
       # From [Documentation for github.event objects](https://github.com/orgs/community/discussions/27058#discussioncomment-3254474):
       - run: "echo 'github: ${{ toJson(github) }}'"
       - run: "echo 'env: ${{ toJson(env) }}'"
