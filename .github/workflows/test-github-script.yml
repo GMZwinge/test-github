@@ -10,7 +10,7 @@ jobs:
           #retries: 3
           # From [Get a repository](https://octokit.github.io/rest.js/v20#repos).
           script: |
-            github.rest.repositories.get({
+            github.rest.repos.get({
               owner: 'GMZwinge',
               repo: 'demo-dependabot',
             })
