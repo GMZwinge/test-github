@@ -47,15 +47,15 @@ jobs:
         # the content of the string.
         run: echo '${{steps.set-result.outputs.result}}'
       # This echos an empty string:
-      - run: "echo 'status: ${{steps.set-result.outputs.result.status}}'"
+      #- run: "echo 'status: ${{steps.set-result.outputs.result.status}}'"
       # This works:
       - run: "echo 'status: ${{fromJson(steps.set-result.outputs.result).status}}'"
       # This echos an empty string:
-      - run: "echo 'data: ${{steps.set-result.outputs.result.data}}'"
-      # This works:
+      #- run: "echo 'data: ${{steps.set-result.outputs.result.data}}'"
+      # This works but only displays `Object`:
       - run: "echo 'data: ${{fromJson(steps.set-result.outputs.result).data}}'"
       # This echos an empty string:
-      - run: "echo 'is_template: ${{steps.set-result.outputs.result.data.is_template}}'"
+      #- run: "echo 'is_template: ${{steps.set-result.outputs.result.data.is_template}}'"
       # This works:
       - run: "echo 'is_template: ${{fromJson(steps.set-result.outputs.result).data.is_template}}'"
       # This works:
@@ -70,5 +70,9 @@ jobs:
             })
       - name: Get result 2
         run: echo '${{steps.set-result-2.outputs.result}}'
+      - run: "echo 'status: ${{fromJson(steps.set-result-2.outputs.result).status}}'"
+      - run: "echo 'data: ${{fromJson(steps.set-result-2.outputs.result).data}}'"
       - run: "echo 'is_template: ${{steps.set-result-2.outputs.result.is_template}}'"
+      - run: "echo 'is_template: ${{fromJson(steps.set-result-2.outputs.result).data.is_template}}'"
       - run: "echo 'template_repository: ${{steps.set-result.outputs.result.template_repository}}'"
+      - run: "echo 'template_repository: ${{fromJson(steps.set-result-2.outputs.result).data.template_repository}}'"
