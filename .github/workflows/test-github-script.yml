@@ -34,7 +34,7 @@ jobs:
           script: |
             return github.rest.repos.get({
               owner: 'GMZwinge',
-              repo: 'demo-dependabot',
+              repo: 'test-github-template',
             })
           # This works:
           #script: return "Hello!"
@@ -46,4 +46,13 @@ jobs:
         # WARNING: use single quotes around the string being echoed, otherwise it tries to expand
         # the content of the string.
         run: echo '${{steps.set-result.outputs.result}}'
-        run: echo 'is_template: ${{steps.set-result.outputs.result.is_template}}'
+      - run: "echo 'is_template: ${{steps.set-result.outputs.result.is_template}}'"
+      - uses: actions/github-script@v6
+        id: set-result-2
+        with:
+          script: |
+            return github.rest.repos.get({
+              owner: 'GMZwinge',
+              repo: 'testing-github-template',
+            })
+      - run: "echo 'is_template: ${{steps.set-result-2.outputs.result.is_template}}'"
