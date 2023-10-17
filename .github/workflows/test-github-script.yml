@@ -8,7 +8,7 @@ jobs:
         with:
           # May only be be needed when explicitely returning string, otherwise returns json.
           #result-encoding: string
-          retries: 3
+          #retries: 3
           # From [Get a repository](https://octokit.github.io/rest.js/v20#repos).
           # Note:
           # - This echos an empty strting below:
@@ -17,20 +17,23 @@ jobs:
           #     return github.rest.repos.get(...
           # - This echos an empty strting below:
           #     await github.rest.repos.get(...
-          # - This ???:
+          # - This works:
           #     return await github.rest.repos.get(...
-          # This seems to return undefined:
-          script: |
-            return await github.rest.repos.get({
-              owner: context.repo.owner,
-              repo: context.repo.repo,
-            })
-          # This seems to return undefined:
+          # TODO: open an issue about the example in [Retries](https://github.com/actions/github-script#retries).
+          # This does not make sense because it gets something but doesn't do anything with it:
+          #   github.rest.issues.get({
+          # It should be instead:
+          #   return github.rest.issues.get({
           #script: |
-          #  github.rest.repos.get({
-          #    owner: 'GMZwinge',
-          #    repo: 'demo-dependabot',
+          #  return github.rest.repos.get({
+          #    owner: context.repo.owner,
+          #    repo: context.repo.repo,
           #  })
+          script: |
+            return github.rest.repos.get({
+              owner: 'GMZwinge',
+              repo: 'demo-dependabot',
+            })
           # This works:
           #script: return "Hello!"
           # This works:
