@@ -9,7 +9,7 @@ jobs:
           #result-encoding: string
           script: return 'abcd.'
       - name: Get result 0
-        run: "echo 'result: {{steps.test-string-encoding.outputs.result}}.'?"
+        run: "echo 'result: ${{steps.test-string-encoding.outputs.result}}.'?"
       # Note: this seems to use https://github.com/octokit/rest.js which is Javascript. There is also
       # https://github.com/octokit/octokit.js that seems very similar but is Typescrvipt.
       - uses: actions/github-script@v6
