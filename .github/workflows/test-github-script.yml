@@ -46,7 +46,10 @@ jobs:
         # WARNING: use single quotes around the string being echoed, otherwise it tries to expand
         # the content of the string.
         run: echo '${{steps.set-result.outputs.result}}'
-      - run: "echo 'is_template: ${{fromJson(steps.set-result.outputs.result).is_template}}'"
+      - run: "echo 'status: ${{steps.set-result.outputs.result.status}}'"
+      - run: "echo 'data: ${{steps.set-result.outputs.result.data}}'"
+      - run: "echo 'is_template: ${{steps.set-result.outputs.result.data.is_template}}'"mplate}}'"
+      - run: "echo 'is_template: ${{fromJson(steps.set-result.outputs.result).data.is_template}}'"
       - run: "echo 'template_repository: ${{steps.set-result.outputs.result.template_repository}}'"
       - uses: actions/github-script@v6
         id: set-result-2
