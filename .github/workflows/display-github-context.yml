@@ -1,6 +1,6 @@
-on: push
+on: [push, workflow_dispatch]
 jobs:
-  display-push-payload:
+  display-github-context:
     runs-on: ubuntu-latest
     steps:
       - run: echo '${{ toJson(github) }}'
