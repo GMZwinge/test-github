@@ -4,10 +4,17 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/github-script@v6
+        id: test-json-encoding
+        with:
+          result-encoding: json
+          script: return 'a string'
+      - name: Get result 0
+        run: "echo 'result: ${{steps.test-json-encoding.outputs.result}}.'?"
+      - uses: actions/github-script@v6
         id: test-string-encoding
         with:
-          #result-encoding: string
-          script: return 'abcd.'
+          result-encoding: string
+          script: return 'a string'
       - name: Get result 0
         run: "echo 'result: ${{steps.test-string-encoding.outputs.result}}.'?"
       # Note: this seems to use https://github.com/octokit/rest.js which is Javascript. There is also
