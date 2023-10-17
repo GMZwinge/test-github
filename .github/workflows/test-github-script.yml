@@ -9,7 +9,7 @@ jobs:
         id: set-result
         with:
           # May only be be needed when explicitely returning string, otherwise returns json.
-          #result-encoding: string
+          result-encoding: string
           #retries: 3
           # From [Get a repository](https://octokit.github.io/rest.js/v20#repos).
           # Note:
