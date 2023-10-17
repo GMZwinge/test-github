@@ -8,16 +8,20 @@ jobs:
         with:
           result-encoding: string
           # From [Get a repository](https://octokit.github.io/rest.js/v20#repos).
-          script: |
-            github.rest.repos.get({
-              owner: context.repo.owner,
-              repo: context.repo.repo,
-            })
+          # This seems to return undefined:
+          #script: |
+          #  github.rest.repos.get({
+          #    owner: context.repo.owner,
+          #    repo: context.repo.repo,
+          #  })
+          # This seems to return undefined:
           #script: |
           #  github.rest.repos.get({
           #    owner: 'GMZwinge',
           #    repo: 'demo-dependabot',
           #  })
+          # This works:
           #script: return "Hello!"
+          script: return context.repo.owner
       - name: Get result
         run: echo "${{steps.set-result.outputs.result}}"
