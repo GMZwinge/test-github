@@ -55,4 +55,5 @@ jobs:
               owner: 'GMZwinge',
               repo: 'testing-github-template',
             })
+      - run: echo '${{steps.set-result-2.outputs.result}}'
       - run: "echo 'is_template: ${{steps.set-result-2.outputs.result.is_template}}'"
