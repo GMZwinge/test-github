@@ -46,3 +46,4 @@ jobs:
         # WARNING: use single quotes around the string being echoed, otherwise it tries to expand
         # the content of the string.
         run: echo '${{steps.set-result.outputs.result}}'
+        run: echo 'is_template: ${{steps.set-result.outputs.result.is_template}}'
