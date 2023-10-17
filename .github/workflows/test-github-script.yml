@@ -10,9 +10,14 @@ jobs:
           #result-encoding: string
           retries: 3
           # From [Get a repository](https://octokit.github.io/rest.js/v20#repos).
+          # Note:
+          # - This ???: github.rest.repos.get(...
+          # - This works: return github.rest.repos.get(...
+          # - This ???: await github.rest.repos.get(...
+          # - This ???: return await github.rest.repos.get(...
           # This seems to return undefined:
           script: |
-            return github.rest.repos.get({
+            github.rest.repos.get({
               owner: context.repo.owner,
               repo: context.repo.repo,
             })
@@ -29,4 +34,6 @@ jobs:
           # This works:
           #script: return context.repo.repo
       - name: Get result
+        # WARNING: use single quotes around the string being echoed, otherwise it tries to expand
+        # the content of the string.
         run: echo '${{steps.set-result.outputs.result}}'
