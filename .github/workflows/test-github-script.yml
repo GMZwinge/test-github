@@ -6,7 +6,8 @@ jobs:
       - uses: actions/github-script@v6
         id: set-result
         with:
-          result-encoding: string
+          # May only be be needed when explicitely returning string, otherwise returns json.
+          #result-encoding: string
           retries: 3
           # From [Get a repository](https://octokit.github.io/rest.js/v20#repos).
           # This seems to return undefined:
