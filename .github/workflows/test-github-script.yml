@@ -58,8 +58,8 @@ jobs:
       #- run: "echo 'is_template: ${{steps.set-result.outputs.result.data.is_template}}'"
       # This works:
       - run: "echo 'is_template: ${{fromJson(steps.set-result.outputs.result).data.is_template}}'"
-      # This works:
-      - run: "echo 'template_repository: ${{fromJson(steps.set-result.outputs.result).data.template_repository}}'"
+      # This works and display the full name of the template this repository was created from or an empty string:
+      - run: "echo 'template_repository: ${{fromJson(steps.set-result.outputs.result).data.template_repository.full_name}}'"
       - uses: actions/github-script@v6
         id: set-result-2
         with:
@@ -72,7 +72,10 @@ jobs:
         run: echo '${{steps.set-result-2.outputs.result}}'
       - run: "echo 'status: ${{fromJson(steps.set-result-2.outputs.result).status}}'"
       - run: "echo 'data: ${{fromJson(steps.set-result-2.outputs.result).data}}'"
-      - run: "echo 'is_template: ${{steps.set-result-2.outputs.result.is_template}}'"
+      #- run: "echo 'is_template: ${{steps.set-result-2.outputs.result.is_template}}'"
       - run: "echo 'is_template: ${{fromJson(steps.set-result-2.outputs.result).data.is_template}}'"
-      - run: "echo 'template_repository: ${{steps.set-result.outputs.result.template_repository}}'"
+      #- run: "echo 'template_repository: ${{steps.set-result.outputs.result.template_repository}}'"
+      # This works but only displays `Object`:
       - run: "echo 'template_repository: ${{fromJson(steps.set-result-2.outputs.result).data.template_repository}}'"
+      # This works and display the full name of the template this repository was created from or an empty string:
+      - run: "echo 'template_repository: ${{fromJson(steps.set-result-2.outputs.result).data.template_repository.full_name}}'"
