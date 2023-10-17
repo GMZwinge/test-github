@@ -22,6 +22,9 @@ jobs:
           #  })
           # This works:
           #script: return "Hello!"
-          script: return context.repo.owner
+          # This works:
+          #script: return context.repo.owner
+          # This works:
+          script: return context.repo.repo
       - name: Get result
         run: echo "${{steps.set-result.outputs.result}}"
