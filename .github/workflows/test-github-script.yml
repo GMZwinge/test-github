@@ -29,4 +29,4 @@ jobs:
           # This works:
           #script: return context.repo.repo
       - name: Get result
-        run: echo "${{steps.set-result.outputs.result}}"
+        run: echo '${{steps.set-result.outputs.result}}'
