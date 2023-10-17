@@ -7,13 +7,14 @@ jobs:
         id: set-result
         with:
           result-encoding: string
+          retries: 3
           # From [Get a repository](https://octokit.github.io/rest.js/v20#repos).
           # This seems to return undefined:
-          #script: |
-          #  github.rest.repos.get({
-          #    owner: context.repo.owner,
-          #    repo: context.repo.repo,
-          #  })
+          script: |
+            github.rest.repos.get({
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+            })
           # This seems to return undefined:
           #script: |
           #  github.rest.repos.get({
@@ -25,6 +26,6 @@ jobs:
           # This works:
           #script: return context.repo.owner
           # This works:
-          script: return context.repo.repo
+          #script: return context.repo.repo
       - name: Get result
         run: echo "${{steps.set-result.outputs.result}}"
