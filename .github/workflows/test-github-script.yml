@@ -7,7 +7,7 @@ jobs:
         id: test-string-encoding
         with:
           #result-encoding: string
-          string: return 'abcd.'
+          script: return 'abcd.'
       - name: Get result 0
         run: "echo 'result: {{steps.test-string-encoding.outputs.result}}.'?"
       # Note: this seems to use https://github.com/octokit/rest.js which is Javascript. There is also
