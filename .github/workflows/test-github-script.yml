@@ -3,6 +3,8 @@ jobs:
   test-github-action:
     runs-on: ubuntu-latest
     steps:
+      # Note: this seems to use https://github.com/octokit/rest.js which is Javascript. There is also
+      # https://github.com/octokit/octokit.js that seems very similar but is Typescrvipt.
       - uses: actions/github-script@v6
         id: set-result
         with:
