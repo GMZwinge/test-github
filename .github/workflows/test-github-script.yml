@@ -3,13 +3,23 @@ jobs:
   test-github-action:
     runs-on: ubuntu-latest
     steps:
+      - uses: actions/github-script@v6
+        id: test-string-encoding
+        with:
+          #result-encoding: string
+          string: return 'abcd.'
+      - name: Get result 0
+        run: "echo 'result: {{steps.test-string-encoding.outputs.result}}.'?"
       # Note: this seems to use https://github.com/octokit/rest.js which is Javascript. There is also
       # https://github.com/octokit/octokit.js that seems very similar but is Typescrvipt.
       - uses: actions/github-script@v6
         id: set-result
         with:
           # May only be be needed when explicitely returning string, otherwise returns json.
-          result-encoding: string
+          # If the returned value is a json object and this is set to `string`, the returned value becomes
+          # this string:
+          #   [object Object]
+          #result-encoding: string
           #retries: 3
           # From [Get a repository](https://octokit.github.io/rest.js/v20#repos).
           # Note:
