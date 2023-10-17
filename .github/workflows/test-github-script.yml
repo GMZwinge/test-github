@@ -9,6 +9,8 @@ jobs:
           result-encoding: json
           script: return 'a string'
       - name: Get result test-json-encoding
+        # This outputs:
+        #   result: "a string".
         run: "echo 'result: ${{steps.test-json-encoding.outputs.result}}.'"
       - uses: actions/github-script@v6
         id: test-string-encoding
@@ -16,6 +18,8 @@ jobs:
           result-encoding: string
           script: return 'a string'
       - name: Get result test-string-encoding
+        # This outputs:
+        #   result: a string.
         run: "echo 'result: ${{steps.test-string-encoding.outputs.result}}.'"
       # Note: this seems to use https://github.com/octokit/rest.js which is Javascript. There is also
       # https://github.com/octokit/octokit.js that seems very similar but is Typescrvipt.
