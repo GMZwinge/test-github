@@ -3,4 +3,16 @@ jobs:
   display-github-context:
     runs-on: ubuntu-latest
     steps:
-      - run: echo '${{ toJson(github) }}'
+      # From [Documentation for github.event objects](https://github.com/orgs/community/discussions/27058#discussioncomment-3254474):
+      - run: "echo 'github: ${{ toJson(github) }}'"
+      - run: "echo 'env: ${{ toJson(env) }}'"
+      - run: "echo 'vars: ${{ toJson(vars) }}'"
+      - run: "echo 'job: ${{ toJson(job) }}'"
+      - run: "echo 'jobs: ${{ toJson(jobs) }}'"
+      - run: "echo 'steps: ${{ toJson(steps) }}'"
+      - run: "echo 'runner: ${{ toJson(runner) }}'"
+      - run: "echo 'secrets: ${{ toJson(secrets) }}'"
+      - run: "echo 'strategy: ${{ toJson(strategy) }}'"
+      - run: "echo 'matrix: ${{ toJson(matrix) }}'"
+      - run: "echo 'needs: ${{ toJson(needs) }}'"
+      - run: "echo 'inputs: ${{ toJson(inputs) }}'"
