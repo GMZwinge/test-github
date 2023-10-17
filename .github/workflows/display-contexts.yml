@@ -1,6 +1,6 @@
 on: [push, workflow_dispatch]
 jobs:
-  display-github-context:
+  display-contexts:
     runs-on: ubuntu-latest
     steps:
       # From [Documentation for github.event objects](https://github.com/orgs/community/discussions/27058#discussioncomment-3254474):
@@ -8,7 +8,8 @@ jobs:
       - run: "echo 'env: ${{ toJson(env) }}'"
       - run: "echo 'vars: ${{ toJson(vars) }}'"
       - run: "echo 'job: ${{ toJson(job) }}'"
-      - run: "echo 'jobs: ${{ toJson(jobs) }}'"
+      # May be only for reusable workflows. See [jobs context](https://docs.github.com/en/actions/learn-github-actions/contexts#jobs-context).
+      #- run: "echo 'jobs: ${{ toJson(jobs) }}'"
       - run: "echo 'steps: ${{ toJson(steps) }}'"
       - run: "echo 'runner: ${{ toJson(runner) }}'"
       - run: "echo 'secrets: ${{ toJson(secrets) }}'"
