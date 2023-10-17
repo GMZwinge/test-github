@@ -12,7 +12,7 @@ jobs:
           # From [Get a repository](https://octokit.github.io/rest.js/v20#repos).
           # This seems to return undefined:
           script: |
-            return await github.rest.repos.get({
+            github.rest.repos.get({
               owner: context.repo.owner,
               repo: context.repo.repo,
             })
