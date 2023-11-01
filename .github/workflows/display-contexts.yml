@@ -1,4 +1,13 @@
-on: [push, workflow_dispatch]
+on:
+  # To run manually:
+  workflow_dispatch:
+    inputs:
+      branch_name:
+        type: text
+  # To run when changes are pushed:
+  push:
+  # To run when something is deleted (eg: branch):
+  delete:
 jobs:
   display-contexts:
     runs-on: ubuntu-latest
