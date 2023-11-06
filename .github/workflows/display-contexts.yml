@@ -29,3 +29,6 @@ jobs:
       - run: "echo 'matrix: ${{ toJson(matrix) }}'"
       - run: "echo 'needs: ${{ toJson(needs) }}'"
       - run: "echo 'inputs: ${{ toJson(inputs) }}'"
+      #
+      # Display environment variables:
+      - run: set
