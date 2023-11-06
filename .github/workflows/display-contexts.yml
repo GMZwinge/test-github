@@ -31,4 +31,4 @@ jobs:
       - run: "echo 'inputs: ${{ toJson(inputs) }}'"
       #
       # Display environment variables:
-      - run: set
+      - run: set | sort
