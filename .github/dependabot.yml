@@ -4,11 +4,13 @@ registries:
     type: npm-registry
     url: https://registry.npmjs.org
     # With this, Dependabot gives this error:
-    #   Dependabot could not read a required secret
-    #token: ${{ secrets.DEPENDABOT_DUMMY_TOKEN }}
+    #   Dependabot could not read a required secret. The secret DEPENDABOT_DUMMY_TOKEN referenced in the config file could not be read.
+    #   Please ensure the secret has been created and that this repo has access to it.
+    token: ${{ secrets.DEPENDABOT_DUMMY_TOKEN }}
     #username: dummy
-    # With this, Dependabot gives this error:
-    #   Dependabot could not read a required secret
+    # With this, Dependabot gives [this error](https://github.com/GMZwinge/test-github/network/updates/858208586):
+    #   Dependabot could not read a required secret. The secret DEPENDABOT_DUMMY_PASSWORD referenced in the config file could not be read.
+    #   Please ensure the secret has been created and that this repo has access to it.
     #password: ${{ secrets.DEPENDABOT_DUMMY_PASSWORD }}
 updates:
   - package-ecosystem: npm
