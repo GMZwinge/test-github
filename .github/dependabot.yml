@@ -9,18 +9,19 @@ registries:
     #  The property '#/registries/npm-npmjs/' of type object did not match one or more of the required schemas
     #  Please update the config file to conform with Dependabot's specification.
     #  ```
-    username: dummy
-    # With this, Dependabot gives [this error](https://github.com/GMZwinge/test-github/network/updates/858208586):
+    #username: dummy
+    # With this, if Dependabot gives [this error](https://github.com/GMZwinge/test-github/network/updates/858208586):
     #   Dependabot could not read a required secret. The secret DEPENDABOT_DUMMY_PASSWORD referenced in the config file could not be read.
     #   Please ensure the secret has been created and that this repo has access to it.
-    # [Dependabot triggered Actions cant access secrets or use a writable token](https://github.com/dependabot/dependabot-core/issues/3253) looks similar.
-    # It turns out that the secret may have to be in under [Dependabot secrets](https://github.com/GMZwinge/test-github/settings/secrets/dependabot),
-    # not under [Actions secrets and variables](https://github.com/GMZwinge/test-github/settings/secrets/actions).
-    password: ${{ secrets.DEPENDABOT_DUMMY_PASSWORD }}
-    # With this, Dependabot gives this error:
+    # it may be because the secret is not under [Dependabot secrets](https://github.com/GMZwinge/test-github/settings/secrets/dependabot),
+    # may be it is under [Actions secrets and variables](https://github.com/GMZwinge/test-github/settings/secrets/actions).
+    #password: ${{ secrets.DEPENDABOT_DUMMY_PASSWORD }}
+    # With this, if Dependabot gives this error:
     #   Dependabot could not read a required secret. The secret DEPENDABOT_DUMMY_TOKEN referenced in the config file could not be read.
     #   Please ensure the secret has been created and that this repo has access to it.
-    #token: ${{ secrets.DEPENDABOT_DUMMY_TOKEN }}
+    # it may be because the secret is not under [Dependabot secrets](https://github.com/GMZwinge/test-github/settings/secrets/dependabot),
+    # may be it is under [Actions secrets and variables](https://github.com/GMZwinge/test-github/settings/secrets/actions).
+    token: ${{ secrets.DEPENDABOT_DUMMY_TOKEN }}
 updates:
   - package-ecosystem: npm
     directory: /testDependabot
