@@ -1,0 +1,15 @@
+version: 2
+registries:
+  npm-npmjs:
+    type: npm-registry
+    url: https://registry.npmjs.org
+updates:
+  - package-ecosystem: npm
+    directory: /testDependabot
+    schedule:
+      interval: monthly
+    groups:
+      test:
+        dependency-type: development
+    registries:
+      - npm-npmjs
