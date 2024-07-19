@@ -5,7 +5,7 @@ registries:
     url: https://registry.npmjs.org
     #token: ${{ secrets.DEPENDABOT_DUMMY_TOKEN }}
     username: dummy
-    #password: ${{ secrets.DEPENDABOT_DUMMY_PASSWORD }}
+    password: ${{ secrets.DEPENDABOT_DUMMY_PASSWORD }}
 updates:
   - package-ecosystem: npm
     directory: /testDependabot
