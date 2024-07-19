@@ -3,18 +3,20 @@ registries:
   npm-npmjs:
     type: npm-registry
     url: https://registry.npmjs.org
-    # Without username/password or token entries Dependabot gives [this error](https://github.com/GMZwinge/test-github/network/updates):
+    # Without username/password or token entry Dependabot gives [this error](https://github.com/GMZwinge/test-github/network/updates):
     #  ```
     #  Dependabot encountered the following error when parsing your .github/dependabot.yml:
     #  The property '#/registries/npm-npmjs/' of type object did not match one or more of the required schemas
     #  Please update the config file to conform with Dependabot's specification.
     #  ```
-    #username: dummy
+    username: dummy
     # With this, Dependabot gives [this error](https://github.com/GMZwinge/test-github/network/updates/858208586):
     #   Dependabot could not read a required secret. The secret DEPENDABOT_DUMMY_PASSWORD referenced in the config file could not be read.
     #   Please ensure the secret has been created and that this repo has access to it.
     # [Dependabot triggered Actions cant access secrets or use a writable token](https://github.com/dependabot/dependabot-core/issues/3253) looks similar.
-    #password: ${{ secrets.DEPENDABOT_DUMMY_PASSWORD }}
+    # It turns out that the secret may have to be in under [Dependabot secrets](https://github.com/GMZwinge/test-github/settings/secrets/dependabot),
+    # not under [Actions secrets and variables](https://github.com/GMZwinge/test-github/settings/secrets/actions).
+    password: ${{ secrets.DEPENDABOT_DUMMY_PASSWORD }}
     # With this, Dependabot gives this error:
     #   Dependabot could not read a required secret. The secret DEPENDABOT_DUMMY_TOKEN referenced in the config file could not be read.
     #   Please ensure the secret has been created and that this repo has access to it.
