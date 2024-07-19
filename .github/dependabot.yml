@@ -3,7 +3,9 @@ registries:
   npm-npmjs:
     type: npm-registry
     url: https://registry.npmjs.org
-    token:
+    token: ${{ secrets.DEPENDABOT_DUMMY_TOKEN }}
+    #username: dummy
+    #password: ${{ secrets.DEPENDABOT_DUMMY_PASSWORD }}
 updates:
   - package-ecosystem: npm
     directory: /testDependabot
