@@ -4,6 +4,11 @@ registries:
     type: npm-registry
     url: https://registry.npmjs.org
     # Without username/password or token entries Dependabot gives [this error](https://github.com/GMZwinge/test-github/network/updates):
+    #  ```
+    #  Dependabot encountered the following error when parsing your .github/dependabot.yml:
+    #  The property '#/registries/npm-npmjs/' of type object did not match one or more of the required schemas
+    #  Please update the config file to conform with Dependabot's specification.
+    #  ```
     #username: dummy
     # With this, Dependabot gives [this error](https://github.com/GMZwinge/test-github/network/updates/858208586):
     #   Dependabot could not read a required secret. The secret DEPENDABOT_DUMMY_PASSWORD referenced in the config file could not be read.
