@@ -4,7 +4,7 @@ registries:
     type: npm-registry
     url: https://registry.npmjs.org
     #token: ${{ secrets.DEPENDABOT_DUMMY_TOKEN }}
-    #username: dummy
+    username: dummy
     #password: ${{ secrets.DEPENDABOT_DUMMY_PASSWORD }}
 updates:
   - package-ecosystem: npm
