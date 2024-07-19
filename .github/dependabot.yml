@@ -3,9 +3,13 @@ registries:
   npm-npmjs:
     type: npm-registry
     url: https://registry.npmjs.org
+    # With this, Dependabot gives this error:
+    #   Dependabot could not read a required secret
     #token: ${{ secrets.DEPENDABOT_DUMMY_TOKEN }}
-    username: dummy
-    password: ${{ secrets.DEPENDABOT_DUMMY_PASSWORD }}
+    #username: dummy
+    # With this, Dependabot gives this error:
+    #   Dependabot could not read a required secret
+    #password: ${{ secrets.DEPENDABOT_DUMMY_PASSWORD }}
 updates:
   - package-ecosystem: npm
     directory: /testDependabot
