@@ -1,0 +1,154 @@
+# Test how to handle defaults when no inputs.
+name: test-defaults-when-no-inputs.yml
+on:
+  workflow_dispatch:
+    inputs:
+      true-input:
+        default: true
+        type: boolean
+      false-input:
+        default: false
+        type: boolean
+      string-not-empty-input:
+        default: string
+        # This should forbid empty value that could result in the default being used.
+        #required: true
+        type: string
+      string-empty-input:
+        default: ''
+        # This should forbid empty value that could result in the default being used.
+        #required: true
+        type: string
+      number-0-input:
+        default: 0
+        type: number
+      number-1-input:
+        default: 1
+        type: number
+      # TODO: from https://docs.github.com/en/actions/learn-github-actions/expressions, `null` seems valid.
+      # Should this test with null values?
+  workflow_call:
+  # This runs every 7 to 11 minutes or so, possibly more sometime.
+  #schedule:
+  #  - cron:  '* * * * *'
+env:
+  # This is false:
+  FALSE_VARIABLE: false
+  # WARNING: the boolean inputs used to evaluate the expression.
+  # This works as expected:
+  BOOLEAN_0_EXPRESSION: ${{ toJSON(inputs) == '{}' && inputs.true-input || inputs.false-input }}
+  # But this doesn't. It always evaluate to true.
+  BOOLEAN_1_EXPRESSION: ${{ toJSON(inputs) == '{}' && inputs.false-input || inputs.true-input }}
+  BOOLEAN_2_EXPRESSION: ${{ toJSON(inputs) != '{}' && inputs.true-input || inputs.false-input }}
+  # WARNING: the value after the && MUST be truthy to be set in the environment variables.
+  TRUE_DEFAULT_TRUE_INPUT: ${{ toJSON(inputs) == '{}' && 'true' || inputs.true-input }}
+  TRUE_DEFAULT_FALSE_INPUT: ${{ toJSON(inputs) == '{}' && 'true' || inputs.false-input }}
+  FALSE_DEFAULT_TRUE_INPUT: ${{ toJSON(inputs) == '{}' && 'false' || inputs.true-input }}
+  FALSE_DEFAULT_FALSE_INPUT: ${{ toJSON(inputs) == '{}' && 'false' || inputs.false-input }}
+  ZERO_DEFAULT_ZERO_INPUT: ${{ toJSON(inputs) == '{}' && '0' || inputs.number-0-input }}
+  ZERO_DEFAULT_ONE_INPUT: ${{ toJSON(inputs) == '{}' && '0' || inputs.number-1-input }}
+  ONE_DEFAULT_ZERO_INPUT: ${{ toJSON(inputs) == '{}' && '1' || inputs.number-0-input }}
+  ONE_DEFAULT_ONE_INPUT: ${{ toJSON(inputs) == '{}' && '1' || inputs.number-1-input }}
+  # Test non-truthy default:
+  NON_TRUTHY_DEFAULT_STRING_NOT_EMPTY_INPUT: ${{ toJSON(inputs) != '{}' && inputs.string-not-empty-input || '' }}
+  NON_TRUTHY_DEFAULT_STRING_EMPTY_INPUT: ${{ toJSON(inputs) != '{}' && inputs.string-empty-input || '' }}
+  #
+  # This works for value and default:
+  #TRUE_INPUT: ${{ inputs.true-input && 'true-input value' || 'true-input default' }}
+  # This works for default, but not for value (gets default instead):
+  #FALSE_INPUT: ${{ inputs.false-input && 'false-input value' || 'false-input default' }}
+  # This works for value and default:
+  #STRING_NOT_EMPTY_INPUT: ${{ inputs.string-not-empty-input && 'string-not-empty-input value' || 'string-not-empty-input default' }}
+  # This works for ???:
+  #NUMBER_0_INPUT: ${{ inputs.number-0-input && 'number input value' || 'number input default' }}
+  #NUMBER_1_INPUT: ${{ inputs.number-1-input && 'number input value' || 'number input default' }}
+  #
+  # This works for value and default:
+  #TRUE_INPUT: ${{ inputs.true-input == '' && 'true-input default' || 'true-input value' }}
+  # This works for default, but not for value (gets default instead):
+  #FALSE_INPUT: ${{ inputs.false-input == '' && 'false-input default' || 'false-input value' }}
+  # This works for value and default:
+  #STRING_NOT_EMPTY_INPUT: ${{ inputs.string-not-empty-input == '' && 'string-not-empty-input default' || 'string-not-empty-input value' }}
+  # This works for ???:
+  #NUMBER_0_INPUT: ${{ inputs.number-0-input == '' && 'number input default' || 'number input value' }}
+  #NUMBER_1_INPUT: ${{ inputs.number-1-input == '' && 'number input default' || 'number input value' }}
+  # From [this answer](https://stackoverflow.com/a/73495922) in
+  # [Github Action boolean input with default value](https://stackoverflow.com/questions/76292948/github-action-boolean-input-with-default-value):
+  #
+  # This works for value (except when value is '' or 0?) and default:
+  #TRUE_INPUT: ${{ contains(inputs.true-input, 'true') && 'true-input value' || 'true-input default' }}
+  #FALSE_INPUT: ${{ contains(inputs.false-input, 'false') && 'false-input value' || 'false-input default' }}
+  #STRING_NOT_EMPTY_INPUT: ${{ inputs.string-not-empty-input && 'string-not-empty-input value' || 'string-not-empty-input default' }}
+  #NUMBER_0_INPUT: ${{ inputs.number-0-input && 'number-0-input value' || 'number-0-input default' }}
+  #NUMBER_1_INPUT: ${{ inputs.number-1-input && 'number-1-input value' || 'number-1-input default' }}
+  #
+  # Could this works according to the example for object named vegetables in
+  # [Object filters](https://docs.github.com/en/actions/learn-github-actions/expressions#object-filters),
+  # but it doesn't seems to.
+  #TRUE_INPUT: ${{ contains(inputs.*, 'true-input') && 'true-input default' || 'true-input value' }}
+  #FALSE_INPUT: ${{ contains(inputs.*, 'false-input') && 'false-input default' || 'false-input value' }}
+  #STRING_NOT_EMPTY_INPUT: ${{ contains(inputs.*, 'string-not-empty-input') && 'string-not-empty-input default' || 'string-not-empty-input value' }}
+  #STRING_EMPTY_INPUT: ${{ contains(inputs.*, 'string-empty-input') && 'string-empty-input default' || 'string-empty-input value' }}
+  #NUMBER_0_INPUT: ${{ contains(inputs.*, 'number-0-input') && 'number-0-input default' || 'number-0-input value' }}
+  #NUMBER_1_INPUT: ${{ contains(inputs.*, 'number-1-input') && 'number-1-input default' || 'number-1-input value' }}
+  #
+  # This test if there are no inputs:
+  TRUE_INPUT: ${{ toJSON(inputs) == '{}' && 'true-input default' || 'true-input value' }}
+  FALSE_INPUT: ${{ toJSON(inputs) == '{}' && 'false-input default' || 'false-input value' }}
+  STRING_NOT_EMPTY_INPUT: ${{ toJSON(inputs) == '{}' && 'string-not-empty-input default' || 'string-not-empty-input value' }}
+  STRING_EMPTY_INPUT: ${{ toJSON(inputs) == '{}' && 'string-empty-input default' || 'string-empty-input value' }}
+  NUMBER_0_INPUT: ${{ toJSON(inputs) == '{}' && 'number-0-input default' || 'number-0-input value' }}
+  NUMBER_1_INPUT: ${{ toJSON(inputs) == '{}' && 'number-1-input default' || 'number-1-input value' }}
+jobs:
+  test-inputs:
+    runs-on: ubuntu-latest
+    steps:
+      - run: echo 'FALSE_VARIABLE |${{ env.FALSE_VARIABLE }}|'
+      - run: echo 'BOOLEAN_0_EXPRESSION |${{ env.BOOLEAN_0_EXPRESSION }}|'
+      - run: echo 'BOOLEAN_1_EXPRESSION |${{ env.BOOLEAN_1_EXPRESSION }}|'
+      - run: echo 'BOOLEAN_2_EXPRESSION |${{ env.BOOLEAN_2_EXPRESSION }}|'
+      #
+      - run: echo 'TRUE_DEFAULT_TRUE_INPUT |${{ env.TRUE_DEFAULT_TRUE_INPUT }}|'
+      - run: echo 'TRUE_DEFAULT_FALSE_INPUT |${{ env.TRUE_DEFAULT_FALSE_INPUT }}|'
+      - run: echo 'FALSE_DEFAULT_TRUE_INPUT |${{ env.FALSE_DEFAULT_TRUE_INPUT }}|'
+      - run: echo 'FALSE_DEFAULT_FALSE_INPUT |${{ env.FALSE_DEFAULT_FALSE_INPUT }}|'
+      #
+      - run: echo 'ZERO_DEFAULT_ZERO_INPUT |${{ env.ZERO_DEFAULT_ZERO_INPUT }}|'
+      - run: echo 'ZERO_DEFAULT_ONE_INPUT |${{ env.ZERO_DEFAULT_ONE_INPUT }}|'
+      - run: echo 'ONE_DEFAULT_ZERO_INPUT |${{ env.ONE_DEFAULT_ZERO_INPUT }}|'
+      - run: echo 'ONE_DEFAULT_ONE_INPUT |${{ env.ONE_DEFAULT_ONE_INPUT }}|'
+      #
+      - run: echo 'NON_TRUTHY_DEFAULT_STRING_NOT_EMPTY_INPUT |${{ env.NON_TRUTHY_DEFAULT_STRING_NOT_EMPTY_INPUT }}|'
+      - run: echo 'NON_TRUTHY_DEFAULT_STRING_EMPTY_INPUT |${{ env.NON_TRUTHY_DEFAULT_STRING_EMPTY_INPUT }}|'
+      #
+      - run: echo 'This shows an empty value when using even other than workflow_dispatch:'
+      - run: echo 'true-input |${{ inputs.true-input }}|'
+      - run: echo 'false-input |${{ inputs.false-input }}|'
+      - run: echo 'string-not-empty-input |${{ inputs.string-not-empty-input }}|'
+      - run: echo 'string-empty-input |${{ inputs.string-empty-input }}|'
+      - run: echo 'number-0-input |${{ inputs.number-0-input }}|'
+      - run: echo 'number-1-input |${{ inputs.number-1-input }}|'
+      - run: echo 'This shows value from environment variables:'
+      - run: echo 'true-input env ${{ env.TRUE_INPUT }}'
+      - run: echo 'false-input env ${{ env.FALSE_INPUT }}'
+      - run: echo 'string-not-empty-input env ${{ env.STRING_NOT_EMPTY_INPUT }}'
+      - run: echo 'string-empty-input env ${{ env.STRING_EMPTY_INPUT }}'
+      - run: echo 'number-0-input env ${{ env.NUMBER_0_INPUT }}'
+      - run: echo 'number-1-input env ${{ env.NUMBER_1_INPUT }}'
+      - run: echo 'From https://github.com/actions/runner/issues/1483:'
+      # This displays `{}` if there are no inputs.
+      - run: echo 'inputs ${{ toJSON(inputs) }}'
+      # This displays `Array`:
+      - run: echo 'inputs ${{ inputs.* }}'
+      # This displays `[ false, "0", "1", "string", true ]`, not `[ "true-input", "false-input", ... ]`
+      # that I was hoping:
+      - run: echo 'inputs ${{ toJSON(inputs.*) }}'
+      # This displays `Object`:
+      #- run: echo 'inputs ${{ inputs }}'
+      # Gives error like this:
+      #   Error: The template is not valid. .github/workflows/test-default-inputs.yml (Line: 51, Col: 14):
+      #   Unexpected character encountered while parsing value: s. Path '', line 0, position 0.
+      #- run: echo 'inputs ${{ fromJSON(inputs) }}'
+      #- run: echo 'true-input env ${{ fromJSON(inputs.true-input) }}'
+      #- run: echo 'false-input env ${{ fromJSON(inputs.false-input) }}'
+      #- run: echo 'string-not-empty-input env ${{ fromJSON(inputs.string-not-empty-input) }}'
