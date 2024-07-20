@@ -1,0 +1,7 @@
+# Call workflow to test how to handle defaults when no inputs.
+name: test-defaults-when-no-inputs-call.yml
+on:
+  workflow_dispatch:
+jobs:
+  test-inputs:
+    uses: ./.github/workflows/test-defaults-when-no-inputs.yml
