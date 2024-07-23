@@ -27,12 +27,16 @@ jobs:
       - run: |
           cat << EOF > Dockerfile
             # A public image from Docker hub:
-            FROM alpine:3.19
-            # Ensure the layer is different at every build by having a different command and file created
+            FROM alpine:3.20.2
+            # A private image that could require a PAT to pull:
+            #FROM ghcr.io/gmzwinge/my-alpine:0.0.1
+            # Ensure the layer is different at every version by having a different command and file created
             # at every Docker build, eg a command that displays a nanoseconds date time stamp.
             # Not sure if both command and file created are required.
             WORKDIR /app
-            RUN echo "$(date +%s%N)" > "$(date +%s%N)"
+            #RUN echo "$(date +%s%N)" > "$(date +%s%N)"
+            RUN echo '${{ inputs.image-version }}' > version.txt
+            ENTRYPOINT cat version.txt
           EOF
       - run: docker build --tag '${{ inputs.image-registry }}/${{ inputs.image-name }}:${{ inputs.image-version }}' --file Dockerfile .
       - run: echo '${{ secrets.GITHUB_TOKEN }}' | docker login '${{ inputs.image-registry }}' -u '${{ github.actor }}' --password-stdin
