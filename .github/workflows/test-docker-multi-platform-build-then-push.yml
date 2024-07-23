@@ -42,7 +42,7 @@ jobs:
           EOF
       #
       # Check that the Dockerfile works as expected
-      - run: docker image build --tag '${{ env.IMAGE_TAG }}'
+      - run: docker image build --tag '${{ env.IMAGE_TAG }}' --file Dockerfile .
       - run: docker image ls
       # This should display the version:
       - run: docker container run --rm '${{ env.IMAGE_TAG }}'
