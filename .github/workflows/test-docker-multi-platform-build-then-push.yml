@@ -8,7 +8,7 @@ on:
         required: true
       image-name:
         description: Image name
-        default: GMZwinge/gmzwinge-test-container-package
+        default: gmzwinge/gmzwinge-test-container-package
         required: true
       image-version:
         description: Image tag like '1.0'
@@ -29,7 +29,7 @@ jobs:
             # A public image from Docker hub:
             FROM alpine:3.19
             # A private image that could require a PAT to pull:
-            #FROM ghcr.io/GMZwinge/my-alpine:0.0.1
+            #FROM ghcr.io/gmzwinge/my-alpine:0.0.1
             # Ensure the layer is different at every build by having a different command and file created
             # at every Docker build, eg a command that displays a nanoseconds date time stamp.
             # Not sure if both command and file created are required.
