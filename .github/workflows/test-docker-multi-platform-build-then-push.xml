@@ -1,0 +1,137 @@
+name: test-docker-multi-platform-build-then-push.xml
+on:
+  workflow_dispatch:
+    inputs:
+      image-registry:
+        default: ghcr.io
+        description: Image registry
+        required: true
+      image-name:
+        description: Image name
+        default: GMZwinge/gmzwinge-test-container-package
+        required: true
+      image-version:
+        description: Image tag like '1.0'
+        default: 1.0.0
+        required: true
+permissions:
+  packages: write
+jobs:
+  test-docker-multi-platform-build-then-push:
+    runs-on: ubuntu-latest
+    steps:
+      # Login Docker to be able to pull images, including private images:
+      #- run: echo '${{ secrets.PRIVATE_PACKAGES_READ }}' | docker login '${{ inputs.image-registry }}' -u '${{ github.actor }}' --password-stdin
+      - run: echo '${{ secrets.GITHUB_TOKEN }}' | docker login '${{ inputs.image-registry }}' -u '${{ github.actor }}' --password-stdin
+      # Create a simple Docker file:
+      - run: |
+          cat << 'EOF' > Dockerfile
+            # A public image from Docker hub:
+            FROM alpine:3.19
+            # A private image that could require a PAT to pull:
+            #FROM ghcr.io/GMZwinge/my-alpine:0.0.1
+            # Ensure the layer is different at every build by having a different command and file created
+            # at every Docker build, eg a command that displays a nanoseconds date time stamp.
+            # Not sure if both command and file created are required.
+            WORKDIR /app
+            RUN echo "$(date +%s%N)" > "$(date +%s%N)"
+          EOF
+      #
+      # This seems to build a `simple` image: a single tagged sha is pushed to the registry.
+      #- run: docker image build --tag '${{ inputs.image-registry }}/${{ inputs.image-name }}:${{ inputs.image-version }}' --tag '${{ inputs.image-registry }}/${{ inputs.image-name }}:${{ inputs.image-version }}.0' --label 'org.opencontainers.image.source=${{ github.event.repository.html_url }}' --file Dockerfile .
+      # Trying to figure out how to build a more `complex` images, eg: 3 shas are pushed to the registry, one of them tagged.
+      # This did not work possibly because buildx and image may be equivalent.
+      #- run: docker buildx build --tag '${{ inputs.image-registry }}/${{ inputs.image-name }}:${{ inputs.image-version }}' --tag '${{ inputs.image-registry }}/${{ inputs.image-name }}:${{ inputs.image-version }}.0' --label 'org.opencontainers.image.source=${{ github.event.repository.html_url }}' --file Dockerfile .
+      # Trying with annotation. Same result.
+      #- run: docker buildx build --tag '${{ inputs.image-registry }}/${{ inputs.image-name }}:${{ inputs.image-version }}' --tag '${{ inputs.image-registry }}/${{ inputs.image-name }}:${{ inputs.image-version }}.0' --label 'org.opencontainers.image.source=${{ github.event.repository.html_url }}' --annotation 'foo=bar' --file Dockerfile .
+      # It could be because the code from create-test-container-package-versions.yml creates an architecture `unknown/unknown` beside
+      # the normal architecture `linux/amd64` (see tab `OS / Arch 2` in one of the tagged version it creates).
+      # May have found the way from https://www.docker.com/blog/multi-arch-build-and-images-the-simple-way/. Combined with docker commands
+      # displayed by create-test-container-package-versions.yml:
+      - run: docker context create my-context
+      - run: docker context use my-context
+      - run: set
+      - run: set | grep DOCKER_HOST || true
+      - run: docker version
+      - run: docker info
+      - run: docker buildx version
+      - run: which docker
+      # This builder seems to support only amd64 and 386 platform:
+      #- run: docker buildx create --name builder-docker-container --driver docker-container --buildkitd-flags '--allow-insecure-entitlement security.insecure --allow-insecure-entitlement network.host' --use my-context
+      # Can I create a builder that support amd64 and arm64 platforms? Yes, the builder `builder-docker-container`
+      # now lists `arm64`, but not the other two (default and my-context).
+      - run: docker buildx create --platform 'linux/amd64,linux/arm64/v8' --name builder-docker-container --driver docker-container --buildkitd-flags '--allow-insecure-entitlement security.insecure --allow-insecure-entitlement network.host' --use my-context
+      - run: docker buildx inspect --bootstrap --builder builder-docker-container
+      # List existing builders and the platform they support. It seems to list only build with amd64 platforms,
+      # no arm64 platform.
+      - run: docker buildx ls
+      #- run: docker buildx build --file Dockerfile --platform 'linux/amd64,linux/arm64/v8' --tag '${{ inputs.image-registry }}/${{ inputs.image-name }}:${{ inputs.image-version }}' --tag '${{ inputs.image-registry }}/${{ inputs.image-name }}:${{ inputs.image-version }}.0' --label 'org.opencontainers.image.source=${{ github.event.repository.html_url }}' .
+      #
+      # This build and pushes at the same time:
+      #- run: docker buildx build --file Dockerfile --platform 'linux/amd64,linux/arm64/v8' --push --tag '${{ inputs.image-registry }}/${{ inputs.image-name }}:${{ inputs.image-version }}' --tag '${{ inputs.image-registry }}/${{ inputs.image-name }}:${{ inputs.image-version }}.0' --label 'org.opencontainers.image.source=${{ github.event.repository.html_url }}' .
+      # But we may need to build using the PAT to be able to pull organization
+      # packages, then push using GITHUB_TOKEN so that new package are created linked to this repository and with the
+      # correct user and repo access/permissions.
+      # According to https://github.com/docker/build-push-action/issues/882
+      # and https://github.com/docker/build-push-action/issues/538, it doesn't seem possible to use
+      # docker/build-push-action to push without building, but this should work. Does it?
+      # Probably not. The build displays this warning:
+      #   WARNING: No output specified with docker-container driver. Build result will only remain in the build cache.
+      #   To push result image into registry use --push or to load image into docker use --load
+      #- run: docker buildx build --file Dockerfile --platform 'linux/amd64,linux/arm64/v8' --tag '${{ inputs.image-registry }}/${{ inputs.image-name }}:${{ inputs.image-version }}' --tag '${{ inputs.image-registry }}/${{ inputs.image-name }}:${{ inputs.image-version }}.0' --label 'org.opencontainers.image.source=${{ github.event.repository.html_url }}' .
+      # Trying the --load. It gives this error:
+      #   ERROR: docker exporter does not currently support exporting manifest lists
+      # This looks like the discussion between NiklasBr and TBBle in https://github.com/docker/roadmap/issues/371.
+      - run: docker buildx build --file Dockerfile --platform 'linux/amd64,linux/arm64/v8' --load --tag '${{ inputs.image-registry }}/${{ inputs.image-name }}:${{ inputs.image-version }}' --tag '${{ inputs.image-registry }}/${{ inputs.image-name }}:${{ inputs.image-version }}.0' --label 'org.opencontainers.image.source=${{ github.event.repository.html_url }}' .
+      - run: docker image list --all
+      # Login Docker with token that can push an image. Using GITHUB_TOKEN with permissions `packages: write` ensures that
+      # if the package doesn't already exist, GitHub creates a package that is linked to this repo, with access to this repo
+      # with role `Admin` and with user permissions inherited from this repo.
+      - run: echo '${{ secrets.GITHUB_TOKEN }}' | docker login '${{ inputs.image-registry }}' -u '${{ github.actor }}' --password-stdin
+      - run: docker push --all-tags '${{ inputs.image-registry }}/${{ inputs.image-name }}'
+      # From https://github.com/docker/buildx/issues/59. Using the --push in above command and skipping the push below may also work.
+      #- run: docker buildx build --load --tag '${{ inputs.image-registry }}/${{ inputs.image-name }}:${{ inputs.image-version }}' --tag '${{ inputs.image-registry }}/${{ inputs.image-name }}:${{ inputs.image-version }}.0' .
+      - run: docker image list --all
+      #- run: docker image push --all-tags '${{ inputs.image-registry }}/${{ inputs.image-name }}'
+      #- run: docker image list --all
+      - run: docker image pull '${{ inputs.image-registry }}/${{ inputs.image-name }}:${{ inputs.image-version }}'
+      - run: docker image list --all
+      - run: docker logout '${{ inputs.image-registry }}'
+      - run: docker buildx rm builder-docker-container
+      #
+      # Use same code as create-test-container-package-versions.yml.
+      #- name: Create Docker Context
+      #  run: |
+      #    docker context create my-context
+      #    docker context use my-context
+      #    unset DOCKER_HOST
+      #- name: Set up Docker Buildx
+      #  uses: docker/setup-buildx-action@v3
+      #  with:
+      #    endpoint: my-context
+      #  env:
+      #    DOCKER_CONTEXT: my-context
+      #- name: Login to Registry
+      #  uses: docker/login-action@v3
+      #  with:
+      #    registry: ${{ inputs.image-registry }}
+      #    username: ${{ github.actor }}
+      #    password: ${{ github.token }}
+      #- name: Extract Docker metadata
+      #  id: meta
+      #  uses: docker/metadata-action@v5
+      #  with:
+      #    images: ${{ inputs.image-registry }}/${{ inputs.image-name }}
+      #    flavor: latest=false
+      #    tags: type=raw,value=${{ inputs.image-version }}
+      #- name: Build and push Docker image
+      #  uses: docker/build-push-action@v5
+      #  with:
+      #    context: .
+      #    file: Dockerfile
+      #    push: true
+      #    tags: ${{ inputs.image-registry }}/${{ inputs.image-name }}:${{ inputs.image-version }},${{ inputs.image-registry }}/${{ inputs.image-name }}:${{ inputs.image-version }}.0
+      #    labels: ${{ steps.meta.outputs.labels }}
+      #    cache-from: type=gha
+      #    cache-to: type=gha,mode=max
+      #    no-cache-filters: ImageBuild
