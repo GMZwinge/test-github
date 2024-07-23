@@ -1,4 +1,4 @@
-name: test-publish-private-docker-image.yml
+name: test-docker-publish-private-image.yml
 on:
   workflow_dispatch:
     inputs:
