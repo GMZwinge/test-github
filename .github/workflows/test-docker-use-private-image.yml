@@ -1,0 +1,30 @@
+name: test-docker-use-private-image.yml
+on:
+  workflow_dispatch:
+    inputs:
+      image-registry:
+        default: ghcr.io
+        description: Image registry
+        required: true
+      image-name:
+        description: Image name
+        default: gmzwinge/gmzwinge-test-container-package
+        required: true
+      image-version:
+        description: Image tag like '1.0'
+        default: 1.0.0
+        required: true
+env:
+  IMAGE_TAG: ${{ inputs.image-registry }}/${{ inputs.image-name }}:${{ inputs.image-version }}
+permissions:
+  packages: write
+jobs:
+  test-docker-multi-platform-build-then-push:
+    runs-on: ubuntu-latest
+    steps:
+      # Login Docker to be able to pull images, including private images:
+      #- run: echo '${{ secrets.PRIVATE_PACKAGES_READ }}' | docker login '${{ inputs.image-registry }}' -u '${{ github.actor }}' --password-stdin
+      - run: echo '${{ secrets.GITHUB_TOKEN }}' | docker login '${{ inputs.image-registry }}' -u '${{ github.actor }}' --password-stdin
+      # This should display the version:
+      - run: docker container run --rm '${{ env.IMAGE_TAG }}'
+      - run: docker image rm '${{ env.IMAGE_TAG }}'
