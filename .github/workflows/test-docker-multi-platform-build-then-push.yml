@@ -14,6 +14,8 @@ on:
         description: Image tag like '1.0'
         default: 1.0.0
         required: true
+env:
+  IMAGE_TAG: ${{ inputs.image-registry }}/${{ inputs.image-name }}:${{ inputs.image-version }}
 permissions:
   packages: write
 jobs:
@@ -25,25 +27,34 @@ jobs:
       - run: echo '${{ secrets.GITHUB_TOKEN }}' | docker login '${{ inputs.image-registry }}' -u '${{ github.actor }}' --password-stdin
       # Create a simple Docker file:
       - run: |
-          cat << 'EOF' > Dockerfile
+          cat << EOF > Dockerfile
             # A public image from Docker hub:
-            FROM alpine:3.19
+            FROM alpine:3.20.2
             # A private image that could require a PAT to pull:
             #FROM ghcr.io/gmzwinge/my-alpine:0.0.1
-            # Ensure the layer is different at every build by having a different command and file created
+            # Ensure the layer is different at every version by having a different command and file created
             # at every Docker build, eg a command that displays a nanoseconds date time stamp.
             # Not sure if both command and file created are required.
             WORKDIR /app
-            RUN echo "$(date +%s%N)" > "$(date +%s%N)"
+            #RUN echo "$(date +%s%N)" > "$(date +%s%N)"
+            RUN echo '${{ inputs.image-version }}' > version.txt
+            ENTRYPOINT cat version.txt
           EOF
       #
+      # Check that the Dockerfile works as expected
+      - run: docker image build --tag '${{ env.IMAGE_TAG }}'
+      - run: docker image ls
+      # This should display the version:
+      - run: docker container run --rm '${{ env.IMAGE_TAG }}'
+      - run: docker image rm '${{ env.IMAGE_TAG }}'
+      #
       # This seems to build a `simple` image: a single tagged sha is pushed to the registry.
-      #- run: docker image build --tag '${{ inputs.image-registry }}/${{ inputs.image-name }}:${{ inputs.image-version }}' --tag '${{ inputs.image-registry }}/${{ inputs.image-name }}:${{ inputs.image-version }}.0' --label 'org.opencontainers.image.source=${{ github.event.repository.html_url }}' --file Dockerfile .
+      #- run: docker image build --tag '${{ env.IMAGE_TAG }}' --tag '${{ env.IMAGE_TAG }}.0' --label 'org.opencontainers.image.source=${{ github.event.repository.html_url }}' --file Dockerfile .
       # Trying to figure out how to build a more `complex` images, eg: 3 shas are pushed to the registry, one of them tagged.
       # This did not work possibly because buildx and image may be equivalent.
-      #- run: docker buildx build --tag '${{ inputs.image-registry }}/${{ inputs.image-name }}:${{ inputs.image-version }}' --tag '${{ inputs.image-registry }}/${{ inputs.image-name }}:${{ inputs.image-version }}.0' --label 'org.opencontainers.image.source=${{ github.event.repository.html_url }}' --file Dockerfile .
+      #- run: docker buildx build --tag '${{ env.IMAGE_TAG }}' --tag '${{ env.IMAGE_TAG }}.0' --label 'org.opencontainers.image.source=${{ github.event.repository.html_url }}' --file Dockerfile .
       # Trying with annotation. Same result.
-      #- run: docker buildx build --tag '${{ inputs.image-registry }}/${{ inputs.image-name }}:${{ inputs.image-version }}' --tag '${{ inputs.image-registry }}/${{ inputs.image-name }}:${{ inputs.image-version }}.0' --label 'org.opencontainers.image.source=${{ github.event.repository.html_url }}' --annotation 'foo=bar' --file Dockerfile .
+      #- run: docker buildx build --tag '${{ env.IMAGE_TAG }}' --tag '${{ env.IMAGE_TAG }}.0' --label 'org.opencontainers.image.source=${{ github.event.repository.html_url }}' --annotation 'foo=bar' --file Dockerfile .
       # It could be because the code from create-test-container-package-versions.yml creates an architecture `unknown/unknown` beside
       # the normal architecture `linux/amd64` (see tab `OS / Arch 2` in one of the tagged version it creates).
       # May have found the way from https://www.docker.com/blog/multi-arch-build-and-images-the-simple-way/. Combined with docker commands
@@ -65,10 +76,10 @@ jobs:
       # List existing builders and the platform they support. It seems to list only build with amd64 platforms,
       # no arm64 platform.
       - run: docker buildx ls
-      #- run: docker buildx build --file Dockerfile --platform 'linux/amd64,linux/arm64/v8' --tag '${{ inputs.image-registry }}/${{ inputs.image-name }}:${{ inputs.image-version }}' --tag '${{ inputs.image-registry }}/${{ inputs.image-name }}:${{ inputs.image-version }}.0' --label 'org.opencontainers.image.source=${{ github.event.repository.html_url }}' .
+      #- run: docker buildx build --file Dockerfile --platform 'linux/amd64,linux/arm64/v8' --tag '${{ env.IMAGE_TAG }}' --tag '${{ env.IMAGE_TAG }}.0' --label 'org.opencontainers.image.source=${{ github.event.repository.html_url }}' .
       #
       # This build and pushes at the same time:
-      #- run: docker buildx build --file Dockerfile --platform 'linux/amd64,linux/arm64/v8' --push --tag '${{ inputs.image-registry }}/${{ inputs.image-name }}:${{ inputs.image-version }}' --tag '${{ inputs.image-registry }}/${{ inputs.image-name }}:${{ inputs.image-version }}.0' --label 'org.opencontainers.image.source=${{ github.event.repository.html_url }}' .
+      #- run: docker buildx build --file Dockerfile --platform 'linux/amd64,linux/arm64/v8' --push --tag '${{ env.IMAGE_TAG }}' --tag '${{ env.IMAGE_TAG }}.0' --label 'org.opencontainers.image.source=${{ github.event.repository.html_url }}' .
       # But we may need to build using the PAT to be able to pull organization
       # packages, then push using GITHUB_TOKEN so that new package are created linked to this repository and with the
       # correct user and repo access/permissions.
@@ -78,11 +89,11 @@ jobs:
       # Probably not. The build displays this warning:
       #   WARNING: No output specified with docker-container driver. Build result will only remain in the build cache.
       #   To push result image into registry use --push or to load image into docker use --load
-      #- run: docker buildx build --file Dockerfile --platform 'linux/amd64,linux/arm64/v8' --tag '${{ inputs.image-registry }}/${{ inputs.image-name }}:${{ inputs.image-version }}' --tag '${{ inputs.image-registry }}/${{ inputs.image-name }}:${{ inputs.image-version }}.0' --label 'org.opencontainers.image.source=${{ github.event.repository.html_url }}' .
+      #- run: docker buildx build --file Dockerfile --platform 'linux/amd64,linux/arm64/v8' --tag '${{ env.IMAGE_TAG }}' --tag '${{ env.IMAGE_TAG }}.0' --label 'org.opencontainers.image.source=${{ github.event.repository.html_url }}' .
       # Trying the --load. It gives this error:
       #   ERROR: docker exporter does not currently support exporting manifest lists
       # This looks like the discussion between NiklasBr and TBBle in https://github.com/docker/roadmap/issues/371.
-      - run: docker buildx build --file Dockerfile --platform 'linux/amd64,linux/arm64/v8' --load --tag '${{ inputs.image-registry }}/${{ inputs.image-name }}:${{ inputs.image-version }}' --tag '${{ inputs.image-registry }}/${{ inputs.image-name }}:${{ inputs.image-version }}.0' --label 'org.opencontainers.image.source=${{ github.event.repository.html_url }}' .
+      - run: docker buildx build --file Dockerfile --platform 'linux/amd64,linux/arm64/v8' --load --tag '${{ env.IMAGE_TAG }}' --tag '${{ env.IMAGE_TAG }}.0' --label 'org.opencontainers.image.source=${{ github.event.repository.html_url }}' .
       - run: docker image list --all
       # Login Docker with token that can push an image. Using GITHUB_TOKEN with permissions `packages: write` ensures that
       # if the package doesn't already exist, GitHub creates a package that is linked to this repo, with access to this repo
@@ -90,11 +101,11 @@ jobs:
       - run: echo '${{ secrets.GITHUB_TOKEN }}' | docker login '${{ inputs.image-registry }}' -u '${{ github.actor }}' --password-stdin
       - run: docker push --all-tags '${{ inputs.image-registry }}/${{ inputs.image-name }}'
       # From https://github.com/docker/buildx/issues/59. Using the --push in above command and skipping the push below may also work.
-      #- run: docker buildx build --load --tag '${{ inputs.image-registry }}/${{ inputs.image-name }}:${{ inputs.image-version }}' --tag '${{ inputs.image-registry }}/${{ inputs.image-name }}:${{ inputs.image-version }}.0' .
+      #- run: docker buildx build --load --tag '${{ env.IMAGE_TAG }}' --tag '${{ env.IMAGE_TAG }}.0' .
       - run: docker image list --all
       #- run: docker image push --all-tags '${{ inputs.image-registry }}/${{ inputs.image-name }}'
       #- run: docker image list --all
-      - run: docker image pull '${{ inputs.image-registry }}/${{ inputs.image-name }}:${{ inputs.image-version }}'
+      - run: docker image pull '${{ env.IMAGE_TAG }}'
       - run: docker image list --all
       - run: docker logout '${{ inputs.image-registry }}'
       - run: docker buildx rm builder-docker-container
@@ -130,7 +141,7 @@ jobs:
       #    context: .
       #    file: Dockerfile
       #    push: true
-      #    tags: ${{ inputs.image-registry }}/${{ inputs.image-name }}:${{ inputs.image-version }},${{ inputs.image-registry }}/${{ inputs.image-name }}:${{ inputs.image-version }}.0
+      #    tags: ${{ env.IMAGE_TAG }},${{ env.IMAGE_TAG }}.0
       #    labels: ${{ steps.meta.outputs.labels }}
       #    cache-from: type=gha
       #    cache-to: type=gha,mode=max
