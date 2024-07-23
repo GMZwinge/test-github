@@ -35,4 +35,6 @@ jobs:
             RUN echo "$(date +%s%N)" > "$(date +%s%N)"
           EOF
       - run: docker build --tag '${{ inputs.image-registry }}/${{ inputs.image-name }}:${{ inputs.image-version }}' --file Dockerfile .
+      - run: echo '${{ secrets.GITHUB_TOKEN }}' | docker login '${{ inputs.image-registry }}' -u '${{ github.actor }}' --password-stdin
       - run: docker push '${{ inputs.image-registry }}/${{ inputs.image-name }}:${{ inputs.image-version }}'
+      - run: docker image ls --all
