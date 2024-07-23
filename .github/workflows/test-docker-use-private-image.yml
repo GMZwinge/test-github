@@ -8,7 +8,7 @@ on:
         required: true
       image-name:
         description: Image name
-        default: gmzwinge/gmzwinge-test-container-package
+        default: gmzwinge/gmzwinge-test-private-docker-image
         required: true
       image-version:
         description: Image tag like '1.0'
