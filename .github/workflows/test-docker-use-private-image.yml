@@ -22,9 +22,15 @@ jobs:
   test-docker-multi-platform-build-then-push:
     runs-on: ubuntu-latest
     steps:
-      # Login Docker to be able to pull images, including private images:
+      #
+      # Login Docker with PAT that can pull private images.
       - run: echo '${{ secrets.READ_PRIVATE_PACKAGES }}' | docker login '${{ inputs.image-registry }}' -u '${{ github.actor }}' --password-stdin
       #- run: echo '${{ secrets.GITHUB_TOKEN }}' | docker login '${{ inputs.image-registry }}' -u '${{ github.actor }}' --password-stdin
       # This should display the version:
       - run: docker container run --rm '${{ env.IMAGE_TAG }}'
       - run: docker image rm '${{ env.IMAGE_TAG }}'
+      #
+      # Login Docker with GITHUB_TOKEN that cannot pull private images.
+      - run: echo '${{ secrets.GITHUB_TOKEN }}' | docker login '${{ inputs.image-registry }}' -u '${{ github.actor }}' --password-stdin
+      # The docker command should fail and the whole command exit with 0.
+      - run: docker container run --rm '${{ env.IMAGE_TAG }}' && exit 1 || exit 0
