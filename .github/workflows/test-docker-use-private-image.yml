@@ -32,6 +32,6 @@ jobs:
       #
       # Login Docker with GITHUB_TOKEN that cannot pull private images.
       - run: echo '${{ secrets.GITHUB_TOKEN }}' | docker login '${{ inputs.image-registry }}' -u '${{ github.actor }}' --password-stdin
-      - run: echo '${{ secrets.READ_PRIVATE_PACKAGES }}' | docker login '${{ inputs.image-registry }}' -u '${{ github.actor }}' --password-stdin
+      #- run: echo '${{ secrets.READ_PRIVATE_PACKAGES }}' | docker login '${{ inputs.image-registry }}' -u '${{ github.actor }}' --password-stdin
       # The docker command should fail and the whole command exit with 0.
       - run: docker container run --rm '${{ env.IMAGE_TAG }}' && exit 1 || exit 0
